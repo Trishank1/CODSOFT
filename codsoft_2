@@ -1,0 +1,98 @@
+import math
+import copy
+
+class TicTacToe:
+    def __init__(self):
+        self.board = [[' ' for _ in range(3)] for _ in range(3)]
+        self.current_player = 'X'
+
+    def display_board(self):
+        for row in self.board:
+            print("|".join(row))
+            print("-----")
+
+    def is_winner(self, player):
+        return any(all(cell == player for cell in row) for row in self.board) or \
+               any(all(self.board[i][j] == player for i in range(3)) for j in range(3)) or \
+               all(self.board[i][i] == player for i in range(3)) or \
+               all(self.board[i][2 - i] == player for i in range(3))
+
+    def is_full(self):
+        return all(cell != ' ' for row in self.board for cell in row)
+
+    def game_over(self):
+        return self.is_winner('X') or self.is_winner('O') or self.is_full()
+
+    def available_moves(self):
+        return [(i, j) for i in range(3) for j in range(3) if self.board[i][j] == ' ']
+
+    def make_move(self, move):
+        i, j = move
+        self.board[i][j] = self.current_player
+        self.current_player = 'O' if self.current_player == 'X' else 'X'
+
+    def undo_move(self, move):
+        i, j = move
+        self.board[i][j] = ' '
+        self.current_player = 'O' if self.current_player == 'X' else 'X'
+
+def minimax(board, depth, maximizing_player):
+    if depth == 0 or board.game_over():
+        return heuristic_estimate(board), None
+
+    eval_fn = max if maximizing_player else min
+    best_move = None
+
+    for move in board.available_moves():
+        board.make_move(move)
+        eval, _ = minimax(board, depth - 1, not maximizing_player)
+        board.undo_move(move)
+
+        if eval_fn(eval, heuristic_estimate(board)) == eval:
+            best_move = move
+
+    return heuristic_estimate(board) if maximizing_player else -heuristic_estimate(board), best_move
+
+def heuristic_estimate(board):
+    if board.is_winner('O'):
+        return 1
+    elif board.is_winner('X'):
+        return -1
+    else:
+        return 0
+
+def num_to_coordinates(num):
+    return (num - 1) // 3, (num - 1) % 3
+
+if __name__ == "__main__":
+    game = TicTacToe()
+
+    while not game.game_over():
+        game.display_board()
+
+        if game.current_player == 'X':
+            while True:
+                try:
+                    move_input = int(input("Player X, enter your move (1-9): "))
+                    if 1 <= move_input <= 9 and num_to_coordinates(move_input) in game.available_moves():
+                        move = num_to_coordinates(move_input)
+                        game.make_move(move)
+                        break
+                    else:
+                        print("Invalid move. Try again.")
+                except ValueError:
+                    print("Invalid input. Please enter a number.")
+
+        else:
+            _, move = minimax(copy.deepcopy(game), 9, True)
+            print(f"Player O plays: {move}")
+            game.make_move(move)
+
+    game.display_board()
+
+    if game.is_winner('X'):
+        print("Congratulations! Player X won!")
+    elif game.is_winner('O'):
+        print("Player O wins!")
+    else:
+        print("It's a draw!")
