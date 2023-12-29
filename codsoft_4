@@ -1,0 +1,26 @@
+toothpaste_data = [
+    {'Name': 'FreshClean', 'Flavor': 'Peppermint', 'Ingredients': 'Sodium fluoride, Peppermint oil', 'Price': 2.99},
+    {'Name': 'MintyFresh', 'Flavor': 'Spearmint', 'Ingredients': 'Fluoride, Spearmint flavor', 'Price': 3.49},
+    {'Name': 'CavityGuard', 'Flavor': 'Cool Mint', 'Ingredients': 'Cavity-fighting formula', 'Price': 2.79},
+    {'Name': 'WhiteningPlus', 'Flavor': 'Whitening', 'Ingredients': 'Hydrogen peroxide, Baking soda', 'Price': 4.99},
+    {'Name': 'HerbalGlow', 'Flavor': 'Herbal', 'Ingredients': 'Herbal extracts', 'Price': 3.99},
+]
+
+user = {
+    'Flavor': input("Enter preferred flavor: "),
+    'Ingredients': input("Enter preferred ingredients: "),
+    'Price': float(input("Enter maximum price: ")),
+}
+
+def content_based_filtering(user, toothpaste_data):
+    recommendations = set()
+    for toothpaste in toothpaste_data:
+        if toothpaste['Flavor'] == user['Flavor'] and \
+           user['Ingredients'] in toothpaste['Ingredients'] and \
+           toothpaste['Price'] <= user['Price']:
+            recommendations.add(toothpaste['Name'])
+    return recommendations
+
+recommendations = content_based_filtering(user, toothpaste_data)
+
+print("Toothpaste Recommendations:", recommendations)
